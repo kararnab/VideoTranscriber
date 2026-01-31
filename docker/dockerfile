@@ -1,0 +1,30 @@
+# CUDA runtime with Ubuntu 22.04 (stable, well-supported)
+FROM nvidia/cuda:12.1.0-runtime-ubuntu22.04
+
+# Avoid interactive prompts during build
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    python3.11 \
+    python3-pip \
+    ffmpeg \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Make python3.11 the default python
+RUN ln -s /usr/bin/python3.11 /usr/bin/python
+
+# Upgrade pip and install faster-whisper
+RUN python -m pip install --upgrade pip \
+    && pip install faster-whisper
+
+# Set working directory
+WORKDIR /app
+
+# 🔹 Copy the transcription script into the image
+COPY transcribe.py /app/transcribe.py
+
+# Default command
+ENTRYPOINT ["python"]
